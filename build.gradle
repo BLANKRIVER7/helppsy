@@ -36,6 +36,10 @@ dependencies {
 	//아래는 JUnit의 사용을 위해서 추가하는 것이다.
 	testImplementation 'org.junit.jupiter:junit-jupiter'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	/* Apache commons-io */
+	//implementation 'commons-io:commons-io:2.11.0'
+	/* Apache Commons FileUpload */
+	//implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 }
 
 tasks.named('test') {

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
+<script src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>자유 게시판</title>
+</head>
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    main {
+        border: 1px solid;
+        width: 800px;
+        height: 500px;
+    }
+
+    #titleWord {
+        position: absolute;
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+
+    #titleTxt {
+        position: absolute;
+        margin-left: 60px;
+        margin-top: 10px;
+        width: 400px;
+        height: 25px;
+    }
+
+    #contentWord {
+        position: absolute;
+        margin-left: 10px;
+        margin-top: 100px;
+    }
+
+    #contentTxt {
+        position: absolute;
+        margin-left: 60px;
+        margin-top: 105px;
+        width: 400px;
+        height: 350px;
+    }
+
+    #attachBox {
+        position: absolute;
+        border: 1px solid;
+        width: 300px;
+        height: 400px;
+        margin-left: 480px;
+        margin-top: 50px;
+    }
+
+    #attachWord {
+        text-align: center;
+    }
+
+    #addAttachBtn {
+        margin-left: 10%;
+    }
+
+    #submitBtn {
+        position: absolute;
+        margin-left: 150px;
+        margin-top: 280px;
+    }
+</style>
+
+<body>
+    <header>
+        <h1>자유 게시판 작성</h1>
+    </header>
+    <main>
+        <form id="bulletinForm" enctype="multipart/form-data" action="addFreeBulletinBoard" method="post">
+            <p id="titleWord">제목 :</p>
+            <input id="titleTxt" name="title" type="text" placeholder="제목을 입력하세요">
+            <p id="contentWord">내용 :</p>
+            <textarea id="contentTxt" name="content" placeholder="내용을 입력하세요"></textarea>
+            <div id="attachBox">
+                <p id="attachWord">첨부파일</p>
+                <input id="addAttachBtn" type="file">
+                <div id="">
+                    <table id="fileListTable">
+
+                    </table>
+                </div>
+                <input id="submitBtn" type="button" onclick="submitToController()" value="전송">
+            </div>
+        </form>
+    </main>
+    <footer>
+
+    </footer>
+</body>
+
+</html>
+<script>
+    let initialFileTypeInputTag = document.getElementById('addAttachBtn').files
+    let files = []
+    let fileNames = []
+    window.onload = () => {
+        document.getElementById('addAttachBtn').addEventListener('change', () => {
+            // alert('바뀜')
+            addFile()
+        })
+    }
+    function addFile() {
+        let fileInputTag = document.getElementById('addAttachBtn')
+        files[files.length] = fileInputTag.files
+        filePath = fileInputTag.value
+        fileNames[fileNames.length] = pickFileName(filePath)
+        fileListTable.innerHTML += '<tr><td>' + fileNames[fileNames.length - 1] + '</td></tr>'
+        document.getElementById('addAttachBtn').files = initialFileTypeInputTag
+    }
+    function pickFileName(filePath) {
+        let fileName = ''
+        let cnt = 0
+
+        for (let i = filePath.length - 1; i >= 0; i--) {
+            if (filePath.charAt(i) == '\\' || filePath.charAt(i) == '/') {
+                break
+            }
+            cnt++
+        }
+        for (let i = filePath.length - cnt; i < filePath.length; i++) {
+            fileName += filePath.charAt(i)
+        }
+        return fileName
+    }
+    function submitToController() {
+        let form = document.getElementById('bulletinForm')
+        let fileTypeInputTag
+        let title = document.getElementById('titleTxt').value
+        let content = document.getElementById('contentTxt').value
+
+        if(title == ''){
+            alert('제목을 입력하세요')
+            return
+        }
+        if(content == ''){
+            alert('내용을 입력하세요')
+            return
+        }
+
+        for (let i = 0; i < files.length; i++) {
+            fileTypeInputTag = document.createElement('input')
+            fileTypeInputTag.type = "file"
+            fileTypeInputTag.name = "file"
+            fileTypeInputTag.style.display = "none"
+            fileTypeInputTag.files = files[i]
+            form.appendChild(fileTypeInputTag)
+        }
+        form.submit()
+    }
+</script>
