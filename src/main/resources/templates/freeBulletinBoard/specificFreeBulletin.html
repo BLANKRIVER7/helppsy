@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="main/fragmentStyle.css">
+    <script src="main/fragment.js"></script>
+    <script src="jquery/jquery.js"></script>
+    <title>자유 게시판</title>
+</head>
+<style>
+    #main {
+        border: 1px solid;
+        width: 900px;
+        height: 800px;
+        margin: 0px auto;
+        overflow-y: auto;
+    }
+
+    /* id가 main인 엘리먼트 내부 요소 스타일 */
+
+    #title {
+        /*      border: 1px solid; */
+        width: 800px;
+        margin: 0px auto;
+    }
+
+    #mainImg {
+        /*       border: 1px solid; */
+        width: 800px;
+        text-align: center;
+    }
+
+    #mainContent {
+        /*        border: 1px solid; */
+        width: 800px;
+        margin: 0px auto;
+    }
+
+    /* 댓글 */
+    #addCommentBox {
+        border: 1px solid;
+        width: 800px;
+        height: 300px;
+        margin: 0px auto;
+        overflow-y: auto;
+    }
+
+    .comments {
+        margin: 0px auto;
+        border: 1px solid;
+    }
+
+    /* 대댓글 */
+
+    #addCommenInCommenttBox {
+        border: 1px solid;
+        width: 800px;
+        height: 300px;
+        margin: 0px auto;
+        overflow-y: auto;
+    }
+
+    .commentsInComment {
+        margin: 0px auto;
+        border: 1px solid;
+    }
+
+</style>
+
+<body>
+    <div th:replace="~{main/mainPage:: header}"></div>
+    <div th:replace="~{main/mainPage:: nav}"></div>
+    <div id="main">
+        <h1 id="title" th:text="'제목 : '+${bulletinOne.title}"></h1>
+        <p th:text="'게시글 번호 : '+${bulletinOne.no}"></p>
+        <p th:text="'조회수 : '+${bulletinOne.views}"></p>
+        <p th:text="'작성자 : '+${bulletinOne.writer}"></p>
+        <p th:text="'게시글 등록일자 : '+${#temporals.format(bulletinOne.createDate, 'yyyy-MM-dd HH:mm:ss')}"></p>
+        <img id="mainImg" th:src="@{/files/freeBulletin/{imgName}(imgName=${imgName})}" width="400px">
+        <p id="mainContent" th:text="${bulletinOne.content}"></p>
+        <form id="commentForm" action="freeBulletin/addComment" method="post">
+            <div id="addCommentBox">
+                <div id="addComment"></div>
+                <textarea id="commentContent" name="content"></textarea>
+                <input id="addCommentBtn" type="button" value="올리기" onclick="addComment()">
+                <input type="hidden" th:value="${session.userAlias}" name="writer">
+                <input type="hidden" th:value="${bulletinOne.no}" name="fkNo">
+                <input type="hidden" value="free" name="type">
+            </div>
+        </form>
+        <div class="comments" th:each="commentOne : ${comments}">
+            <p th:text="'작성자 : '+${commentOne.writer}"></p>
+            <p th:text="${commentOne.content}"></p>
+            <p th:text="${commentOne.createDate}"></p>
+
+            <form th:id="commentInCommentForm+${commentOne.no}" action="freeBulletin/addCommentInComment" method="post">
+                <div id="addCommenInCommenttBox">
+                    <div id="addCommentInComment"></div>
+                    <textarea id="commentContentInComment" name="content"></textarea>
+                    <input id="addCommentInCommentBtn" type="button" value="올리기" th:onclick="'addCommentInComment('+${commentOne.no}+')'">
+                    <input type="hidden" th:value="${session.userAlias}" name="writer">
+                    <input type="hidden" th:value="${bulletinOne.no}" name="fkBulletinNo">
+                    <input type="hidden" th:value="${commentOne.no}" name="fkCommentNo">
+                    <input type="hidden" value="free" name="type">
+                </div>
+            </form>
+            <input value="답글보기" type = "button" th:onclick="'commentInComment('+${commentOne.no}+')'">
+            <div class="commentsInComment" th:each="commentInComment : ${commentsInComment}">
+                <p th:text="'작성자 : '+${commentInComment.writer}"></p>
+                <p th:text="${commentInComment.content}"></p>
+                <p th:text="${commentInComment.createDate}"></p>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{main/mainPage:: footer}"></div>
+<input type="button" onclick="commentInComment()" value="ajax 테스트">
+</body>
+
+</html>
+<script>
+    window.onload = () => {
+        document.getElementById('mainTitle').innerHTML = '자유 게시판'
+    }
+    function addComment() {
+        let form = document.getElementById('commentForm')
+        let content = document.getElementById('commentContent')
+
+        if (content == '') {
+            alert('내용을 입력해주세요.')
+            return
+        }
+
+        form.submit()
+    }
+    function addCommentInComment(no) {
+        let form = document.getElementById('commentInCommentForm'+no)
+
+        let content = document.getElementById('commentContentInComment')
+
+        if (content == '') {
+            alert('내용을 입력해주세요.')
+            return
+        }
+
+        form.submit()
+    }
+    let a = []
+    function commentInComment(no){
+
+        $.ajax({
+            type: 'POST',
+            url: '/commentInComment',
+            async: true,
+/*             contentType: 'application/json; charset-utf-8', */
+            dataType: 'json',
+            data: {
+                no : no
+            },
+            success: function(result){
+                a = result
+                console.log('성공 결과 : '+result);
+            },
+            error: function(error){
+                console.log('에러 : '+error)
+            }
+    
+        })
+    }
+</script>

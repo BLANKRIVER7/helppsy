@@ -1,23 +1,27 @@
 package com.cai.helppsy.freeBulletinBoard.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-public class AttachEntity {
+@Data
+public class FreeBulletinAttach {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer attach_num;
-
     private Integer no;
+
+//    private Integer fkNo;
 
     @Column(length = 100)
     private String fileName;
 
-    private LocalDateTime createDaate;
+    private LocalDateTime createDate;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_no")
+    private FreeBulletin freeBulletin;
 }
