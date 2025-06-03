@@ -12,10 +12,9 @@
 <style>
     #main {
         border: 1px solid;
+        border-radius: 10px;
         width: 900px;
-        height: 800px;
         margin: 0px auto;
-        overflow-y: auto;
     }
 
     /* id가 main인 엘리먼트 내부 요소 스타일 */
@@ -41,8 +40,9 @@
     /* 댓글 */
     #addCommentBox {
         border: 1px solid;
+        border-radius: 10px;
         width: 800px;
-        height: 300px;
+        height: 100px;
         margin: 0px auto;
         overflow-y: auto;
     }
@@ -50,14 +50,35 @@
     .comments {
         margin: 0px auto;
         border: 1px solid;
+        border-radius: 10px;
+        width: 800px;
+    }
+
+    #commentContent {
+        margin-left: 10px;
+        margin-top: 10px;
+        width: 600px;
+        height: 75px;
+        font-size: 18px;
+    }
+
+    #addCommentBtn {
+        position: absolute;
+        margin-left: 5px;
+        margin-top: 10px;
+        ;
+        width: 170px;
+        height: 80px;
+        font-size: 20px;
     }
 
     /* 대댓글 */
 
-    #addCommenInCommenttBox {
+    .addCommenInCommenttBox {
         border: 1px solid;
-        width: 800px;
-        height: 300px;
+        border-radius: 10px;
+        width: 700px;
+        height: 50px;
         margin: 0px auto;
         overflow-y: auto;
     }
@@ -67,6 +88,39 @@
         border: 1px solid;
     }
 
+    .commentContentInComment {
+        width: 560px;
+        height: 33px;
+        margin-top: 5px;
+        margin-left: 5px;
+        font-size: 15px;
+    }
+
+    .addCommentInCommentBtn {
+        position: absolute;
+        width: 120px;
+        height: 40px;
+        margin-top: 5px;
+        margin-left: 5px;
+    }
+
+    .showCommentInComment {
+        display: block;
+    }
+
+    .hideCommentInComment {
+        display: none;
+    }
+
+    .commentsInComment {
+        margin-left: 30px;
+        border: 1px solid;
+        border-radius: 10px;
+    }
+
+    #likesDiv {
+        margin-left: 30px;
+    }
 </style>
 
 <body>
@@ -76,6 +130,12 @@
         <h1 id="title" th:text="'제목 : '+${bulletinOne.title}"></h1>
         <p th:text="'게시글 번호 : '+${bulletinOne.no}"></p>
         <p th:text="'조회수 : '+${bulletinOne.views}"></p>
+        <div id="likesDiv">
+            <img id="likesImg" src="" th:onclick="'clickLike('+${bulletinOne.no}+')'"
+                width="50">
+            <p th:text="${likes}"></p>
+            <input id="isPressedLike" th:value="${isPressedLike}" type="hidden">
+        </div>
         <p th:text="'작성자 : '+${bulletinOne.writer}"></p>
         <p th:text="'게시글 등록일자 : '+${#temporals.format(bulletinOne.createDate, 'yyyy-MM-dd HH:mm:ss')}"></p>
         <img id="mainImg" th:src="@{/files/freeBulletin/{imgName}(imgName=${imgName})}" width="400px">
@@ -84,88 +144,190 @@
             <div id="addCommentBox">
                 <div id="addComment"></div>
                 <textarea id="commentContent" name="content"></textarea>
-                <input id="addCommentBtn" type="button" value="올리기" onclick="addComment()">
-                <input type="hidden" th:value="${session.userAlias}" name="writer">
-                <input type="hidden" th:value="${bulletinOne.no}" name="fkNo">
-                <input type="hidden" value="free" name="type">
+                <input id="addCommentBtn" type="button" value="올리기" th:onclick="'addComment('+${bulletinOne.no}+')'">
+                <input id="commentWriter" type="hidden" th:value="${session.userAlias}" name="writer">
+                <input id="commentType" type="hidden" value="free" name="type">
             </div>
         </form>
-        <div class="comments" th:each="commentOne : ${comments}">
+        <div th:id="'comment'+${commentOne.no}" class="comments" th:each="commentOne : ${comments}">
             <p th:text="'작성자 : '+${commentOne.writer}"></p>
-            <p th:text="${commentOne.content}"></p>
-            <p th:text="${commentOne.createDate}"></p>
+            <p th:text="'내용 : '+${commentOne.content}"></p>
+            <p th:text="'작성일 : '+${#temporals.format(commentOne.createDate, 'yyyy-MM-dd HH:mm:ss')}"></p>
 
             <form th:id="commentInCommentForm+${commentOne.no}" action="freeBulletin/addCommentInComment" method="post">
-                <div id="addCommenInCommenttBox">
-                    <div id="addCommentInComment"></div>
-                    <textarea id="commentContentInComment" name="content"></textarea>
-                    <input id="addCommentInCommentBtn" type="button" value="올리기" th:onclick="'addCommentInComment('+${commentOne.no}+')'">
-                    <input type="hidden" th:value="${session.userAlias}" name="writer">
-                    <input type="hidden" th:value="${bulletinOne.no}" name="fkBulletinNo">
-                    <input type="hidden" th:value="${commentOne.no}" name="fkCommentNo">
-                    <input type="hidden" value="free" name="type">
+                <div class="addCommenInCommenttBox">
+                    <textarea th:id="'cicComment'+${commentOne.no}" class="commentContentInComment"
+                        name="content"></textarea>
+                    <input class="addCommentInCommentBtn" type="button" value="올리기"
+                        th:onclick="'addCommentInComment('+${commentOne.no}+')'">
+                    <input th:id="'cicWriter'+${commentOne.no}" type="hidden" th:value="${session.userAlias}"
+                        name="writer">
+                    <input th:id="'cicType'+${commentOne.no}" type="hidden" value="free" name="type">
                 </div>
             </form>
-            <input value="답글보기" type = "button" th:onclick="'commentInComment('+${commentOne.no}+')'">
-            <div class="commentsInComment" th:each="commentInComment : ${commentsInComment}">
-                <p th:text="'작성자 : '+${commentInComment.writer}"></p>
-                <p th:text="${commentInComment.content}"></p>
-                <p th:text="${commentInComment.createDate}"></p>
-            </div>
+            <input th:id="'showCommentInComment'+${commentOne.no}" class="showCommentInComment" value="답글 보기"
+                type="button" th:onclick="'showCommentInComment('+${commentOne.no}+')'">
+            <input th:id="'hideCommentInComment'+${commentOne.no}" class="hideCommentInComment" value="답글 숨기기"
+                type="button" th:onclick="'hideCommentInComment('+${commentOne.no}+')'">
         </div>
     </div>
     <div th:replace="~{main/mainPage:: footer}"></div>
-<input type="button" onclick="commentInComment()" value="ajax 테스트">
 </body>
 
 </html>
 <script>
     window.onload = () => {
         document.getElementById('mainTitle').innerHTML = '자유 게시판'
+
+        let isPressedLike = Number(document.getElementById('isPressedLike').value)
+
+        if(isPressedLike == 1){
+            document.getElementById('likesImg').src = '/images/likes/filledHeart.png'
+        }else{
+            document.getElementById('likesImg').src = '/images/likes/unFilledHeart.png'
+        }
     }
-    function addComment() {
-        let form = document.getElementById('commentForm')
-        let content = document.getElementById('commentContent')
+    function clickLike(no){
+        $.ajax({
+            type: 'post',
+            url: '/likesUp',
+            async: true,
+            dataType: 'text',
+            data: {
+                type: 'freeLikes',
+                userName: document.getElementById('commentWriter').value,
+                fkNo: no
+            },
+            success: function (result) {
+                console.log('성공 결과 : ' + result);
+            },
+            error: function (error) {
+                console.log('에러 : ' + error)
+            }
+        })
+    }
+    function addComment(no) {
+        let content = document.getElementById('commentContent').value
 
         if (content == '') {
             alert('내용을 입력해주세요.')
             return
         }
-
-        form.submit()
-    }
-    function addCommentInComment(no) {
-        let form = document.getElementById('commentInCommentForm'+no)
-
-        let content = document.getElementById('commentContentInComment')
-
-        if (content == '') {
-            alert('내용을 입력해주세요.')
-            return
-        }
-
-        form.submit()
-    }
-    let a = []
-    function commentInComment(no){
 
         $.ajax({
-            type: 'POST',
+            type: 'post',
+            url: '/freeBulletin/addComment',
+            async: true,
+            dataType: 'text',
+            data: {
+                fkNo: no,
+                writer: document.getElementById('commentWriter').innerHTML,
+                content: document.getElementById('commentContent').value,
+                type: document.getElementById('commentType').value
+            },
+            success: function (result) {
+                console.log('성공 결과 : ' + result);
+                document.getElementById('commentContent').value = ''
+            },
+            error: function (error) {
+                console.log('에러 : ' + error)
+            }
+        })
+    }
+    function addCommentInComment(no) {
+        let content = document.getElementById('cicComment' + no).value
+
+        if (content == '') {
+            alert('내용을 입력해주세요.')
+            return
+        }
+
+        $.ajax({
+            type: 'post',
+            url: '/freeBulletin/addCommentInComment',
+            async: true,
+            dataType: 'text',
+            data: {
+                fkNo: no,
+                writer: document.getElementById('cicWriter' + no).innerHTML,
+                content: document.getElementById('cicComment' + no).value,
+                type: document.getElementById('cicType' + no).value
+            },
+            success: function (result) {
+                console.log('성공 결과 : ' + result);
+                document.getElementById('cicComment' + no).value = ''
+                if (document.getElementById('showCommentInComment' + no).style.display == 'none') {
+                    deleteCommentInComment(no)
+                    showCommentInComment(no)
+                }
+            },
+            error: function (error) {
+                console.log('에러 : ' + error)
+            }
+        })
+    }
+    let commentInCommentList = []
+
+    function showCommentInComment(no) {
+        let showingButton = document.getElementById('showCommentInComment' + no).style.display = 'none'
+        let hidingButton = document.getElementById('hideCommentInComment' + no).style.display = 'block'
+
+        $.ajax({
+            type: 'post',
             url: '/commentInComment',
             async: true,
-/*             contentType: 'application/json; charset-utf-8', */
             dataType: 'json',
             data: {
-                no : no
+                no: no
             },
-            success: function(result){
-                a = result
-                console.log('성공 결과 : '+result);
+            success: function (result) {
+                commentInCommentList = result
+                console.log('성공 결과 : ' + result);
+                insertCommentInComment(no)
             },
-            error: function(error){
-                console.log('에러 : '+error)
+            error: function (error) {
+                console.log('에러 : ' + error)
             }
-    
+
         })
+    }
+    function insertCommentInComment(no) {
+        for (let i = 0; i < commentInCommentList.length; i++) {
+            let comment = document.getElementById('comment' + no)
+
+            let div = document.createElement('div')
+            div.setAttribute('class', 'commentsInComment' + no)
+
+            let div2 = document.createElement('div')
+            div2.setAttribute('class', 'commentsInComment')
+
+            let writerElement = document.createElement('p')
+            writerElement.innerHTML = '작성자 : ' + commentInCommentList[i].writer
+
+            let contentElement = document.createElement('p')
+            contentElement.innerHTML = '내용 : ' + commentInCommentList[i].content
+
+            let createDateElement = document.createElement('p')
+            createDateElement.innerHTML = '작성일 : ' + commentInCommentList[i].createDate
+
+            div2.appendChild(writerElement)
+            div2.appendChild(contentElement)
+            div2.appendChild(createDateElement)
+            div.appendChild(div2)
+            comment.appendChild(div)
+        }
+    }
+    function hideCommentInComment(no) {
+        let showingButton = document.getElementById('showCommentInComment' + no).style.display = 'block'
+        let hidingButton = document.getElementById('hideCommentInComment' + no).style.display = 'none'
+
+        deleteCommentInComment(no)
+    }
+    function deleteCommentInComment(no) {
+        let commentsInComment = document.getElementsByClassName('commentsInComment' + no)
+
+        for (let i = commentsInComment.length - 1; i >= 0; i--) {
+            commentsInComment[i].remove()
+        }
     }
 </script>

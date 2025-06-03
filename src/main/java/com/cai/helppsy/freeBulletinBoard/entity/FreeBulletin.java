@@ -38,4 +38,7 @@ public class FreeBulletin {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "freeBulletin", orphanRemoval = true)
     private List<FreeBulletinComment> freeBulletinComments;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "freeBulletin", orphanRemoval = true)
+    private List<FreeBulletinLikes> freeBulletinLikesList;
 }

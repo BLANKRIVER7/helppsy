@@ -3,7 +3,9 @@ package com.cai.helppsy.freeBulletinBoard.serviece;
 import com.cai.helppsy.freeBulletinBoard.entity.*;
 import com.cai.helppsy.freeBulletinBoard.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.cache.spi.support.EntityReadOnlyAccess;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -38,9 +40,6 @@ public class FreeBulletinBoardService {
 
     public void addBulletin(FreeBulletin bulletinEntity, MultipartFile[] files, MultipartFile imgFile
             , String crrentUserName) {
-        System.out.println("_________________________________");
-        System.out.println(crrentUserName);
-        System.out.println("_________________________________");
 
         LocalDateTime createDate = LocalDateTime.now();
         bulletinEntity.setCreateDate(createDate);
@@ -113,38 +112,51 @@ public class FreeBulletinBoardService {
     }
 
     public List<FreeBulletinComment> getComments(int fkNo) {
-//        System.out.println("------------------------1______________________");
         List<FreeBulletinComment> cList = freeBulletinCommentRepository.findByFreeBulletin_no(fkNo);
-//        System.out.println("------------------------2______________________");
-//        for (FreeBulletinComment c : cList)
-//            System.out.println(c);
-//        System.out.println("------------------------3______________________");
         return cList;
     }
 
     // 대댓글
 
-    public void addCommentInComment(FreeBulletinCommentInComment freeBulletinCommentInComment, int fkBulletinNo, int fkCommentNo) {
-        freeBulletinCommentInComment.setFreeBulletin(freeBulletinRepository.findById(fkBulletinNo).get());
-        freeBulletinCommentInComment.setFreeBulletinComment(freeBulletinCommentRepository.findById(fkCommentNo).get());
+    public void addCommentInComment(FreeBulletinCommentInComment freeBulletinCommentInComment, int fkNo) {
+        freeBulletinCommentInComment.setFreeBulletinComment(freeBulletinCommentRepository.findById(fkNo).get());
         freeBulletinCommentInComment.setCreateDate(LocalDateTime.now());
         freeBulletinCommentInCommentRepository.save(freeBulletinCommentInComment);
     }
 
-/*    public FreeBulletinCommentInComment[] getCommentInComments(int no) {
-        FreeBulletinCommentInComment[] cicList = freeBulletinCommentInCommentRepository.findByNo(no);
-        System.out.println("-----------------1___________________");
-//        for (FreeBulletinCommentInComment c : cicList)
-//            System.out.println(c);
-        System.out.println("-----------------2___________________");
-        return cicList;
-    }*/
-    public List<FreeBulletinCommentInComment> getCommentInComments(int no) {
-        List<FreeBulletinCommentInComment> cicList = freeBulletinCommentInCommentRepository.findByNo(no);
-        System.out.println("-----------------1___________________");
-        for (FreeBulletinCommentInComment c : cicList)
+    public FreeBulletinCommentInComment[] getCommentInComments(int no) {
+        return freeBulletinCommentInCommentRepository.findByFreeBulletinComment_no(no);
+    }
 
-        System.out.println("-----------------2___________________");
-        return cicList;
+    // 좋아요
+
+    public void likesUp(FreeBulletinLikes freeBulletinLikes, int fkNo) {
+
+        // 게시글 테이블의 튜플에 좋아요 갱신
+        FreeBulletin bulletin = freeBulletinRepository.findById(fkNo).get();
+        bulletin.setLikes(bulletin.getLikes() + 1);
+        freeBulletinRepository.saveAndFlush(bulletin);
+        // 외래키 지정
+        freeBulletinLikes.setFreeBulletin(bulletin);
+
+
+        // 좋아요 테이블의 튜플에 insert
+        freeBulletinLikesRepository.save(freeBulletinLikes);
+    }
+
+    // 해당 게시물에 좋아요를 눌렀었는지 여부
+    public int isPressedLike(String userName, int no) {
+        List<FreeBulletinLikes> freeBulletinLikes = freeBulletinLikesRepository.findByFreeBulletin_noAndUserName(no, userName);
+        System.out.println(userName);
+        System.out.println(no);
+        System.out.println("---------------");
+        System.out.println(freeBulletinLikes);
+        System.out.println("---------------");
+
+        if (freeBulletinLikes != null)
+            return 1;
+        else
+            return 0;
+
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,10 +29,7 @@ public class FreeBulletinCommentInComment {
     private LocalDateTime createDate;
 
     @ManyToOne
-    @JoinColumn(name = "fk_bulletin_no")
-    private FreeBulletin freeBulletin;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_comment_no")
+    @JoinColumn(name = "fkNo")
     private FreeBulletinComment freeBulletinComment;
+
 }

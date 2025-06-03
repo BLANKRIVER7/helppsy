@@ -126,7 +126,7 @@
                     <td id="col1" th:text="${bulletinOne.no}"></td>
                     <td id="col2" th:text="${bulletinOne.views}"></td>
                     <td id="col3"><a th:text="${bulletinOne.title}"
-                                     th:href="@{specificBulletin(no=${bulletinOne.no})}"></a></td>
+                                     th:href="@{specificBulletin(no=${bulletinOne.no}, userName=${session.userAlias})}"></a></td>
                     <td id="col4" th:text="${bulletinOne.writer}">작성자 없음</td>
                     <td id="col5" th:text="${#temporals.format(bulletinOne.createDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
                 </tr>

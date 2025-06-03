@@ -16,15 +16,14 @@ public class FreeBulletinLikes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int no;
 
-//    private String fkNo;
-
     @Column(length = 10)
     private String type;
 
     @Column(length = 15)
-    private String writer;
+    private String userName;
 
     @ManyToOne
     @JoinColumn(name = "fk_no")
     private FreeBulletin freeBulletin;
+
 }
