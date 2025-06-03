@@ -1,5 +1,6 @@
 package com.cai.helppsy.freeBulletinBoard.dto;
 
+<<<<<<< HEAD
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -32,4 +33,7 @@ public class CommentInCommentDTO {
         this.likes = likes;
         this.createDate = createDate;
     }
+=======
+public class CommentInCommentDTO {
+>>>>>>> 3c50715e30b409e34f5838f04f3a4ee7b88fb5e3
 }
